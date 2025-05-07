@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -11,11 +12,11 @@ function App() {
             <CartProvider>
                 <Router>
                     <div className="flex flex-col min-h-screen">
-                        <Header />
+                        <Header/>
                         <main className="flex-grow">
-                            <AppRoutes />
+                            <AppRoutes/>
                         </main>
-                        <Footer />
+                        <Footer/>
                     </div>
                 </Router>
             </CartProvider>

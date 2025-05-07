@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import productService from '../services/api'; // passt das ggf. an, je nach Struktur
+//import productService from '../services/api'; // passt das ggf. an, je nach Struktur
 import ProductList from '../components/ProductList'; // zur Not erstellen wir einfache Darstellung
 
 const Admin = () => {

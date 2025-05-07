@@ -19,8 +19,8 @@ const Footer = () => {
                     <ul className="space-y-1">
                         <li><Link to="/impressum" className="hover:underline">Impressum</Link></li>
                         <li><Link to="/datenschutz" className="hover:underline">Datenschutzerklärung</Link></li>
-                        <li><Link to="/agb" className="hover:underline">AGB</Link></li>
-                        <li><Link to="/widerruf" className="hover:underline">Widerrufsrecht</Link></li>
+                        <li><Link to="/AGB" className="hover:underline">AGB</Link></li>
+                        <li><Link to="/Widerrufsrecht" className="hover:underline">Widerrufsrecht</Link></li>
                     </ul>
                 </div>
 

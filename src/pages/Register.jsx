@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Zum Zugriff auf den AuthContext
-import { registerUser } from '../services/api.js'; // API-Service zum Registrieren eines Benutzers
+//import { registerUser } from '../services/api.js'; // API-Service zum Registrieren eines Benutzers
 
 function Register() {
     const [email, setEmail] = useState('');
