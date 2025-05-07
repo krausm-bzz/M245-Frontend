@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // Optional: Du kannst auch die Cart-Komponente als Einzeleintrag importieren
-import Cart from '../components/Cart';
+import Cart from '../pages/Cart';
 
 export default function Checkout() {
     const { cartItems, removeFromCart, clearCart } = useCart();
