@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import {getAllProducts} from '../services/api'; // passt das ggf. an, je nach Struktur
-import ProductList from '../components/ProductList'; // zur Not erstellen wir einfache Darstellung
+import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../services/api'; // Passe den Importpfad nach Bedarf an
+import ProductList from '../components/ProductList'; // Zur Not erstellen wir einfache Darstellung
+import ProductForm from '../components/ProductForm'; // Annahme: Du hast ein Formular zur Bearbeitung von Produkten
 
 const Admin = () => {
     const [products, setProducts] = useState([]);
     const [editingProduct, setEditingProduct] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    // Lädt alle Produkte, wenn die Seite geladen wird
     useEffect(() => {
         loadProducts();
     }, []);
@@ -21,20 +23,20 @@ const Admin = () => {
     };
 
     const handleAdd = () => {
-        setEditingProduct(null);
-        setShowForm(true);
+        setEditingProduct(null); // Keines zum Bearbeiten
+        setShowForm(true); // Formular anzeigen
     };
 
     const handleEdit = (product) => {
-        setEditingProduct(product);
-        setShowForm(true);
+        setEditingProduct(product); // Produkt zum Bearbeiten auswählen
+        setShowForm(true); // Formular anzeigen
     };
 
     const handleDelete = async (id) => {
-        if (confirm('Produkt wirklich löschen?')) {
+        if (window.confirm('Produkt wirklich löschen?')) {
             try {
-                await productService.deleteProduct(id);
-                loadProducts();
+                await deleteProduct(id); // Löscht das Produkt
+                loadProducts(); // Lade die Produktliste nach dem Löschen neu
             } catch (err) {
                 console.error('Fehler beim Löschen', err);
             }
@@ -44,12 +46,12 @@ const Admin = () => {
     const handleSave = async (data) => {
         try {
             if (editingProduct) {
-                await productService.updateProduct(editingProduct.id, data);
+                await updateProduct(editingProduct.id, data); // Produkt aktualisieren
             } else {
-                await productService.createProduct(data);
+                await createProduct(data); // Neues Produkt erstellen
             }
-            setShowForm(false);
-            loadProducts();
+            setShowForm(false); // Formular schließen
+            loadProducts(); // Lade die Produktliste nach dem Speichern neu
         } catch (err) {
             console.error('Fehler beim Speichern', err);
         }
