@@ -22,6 +22,7 @@ export default function Header() {
             </span>
                     </Link>
                     <Link to="/login" className="text-gray-700 hover:text-blue-500">Login</Link>
+                    <Link to="/register" className="text-gray-700 hover:text-blue-500">Registrieren</Link>
                 </nav>
             </div>
         </header>

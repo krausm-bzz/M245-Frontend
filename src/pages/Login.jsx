@@ -1,32 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';  // AuthContext verwenden
-//import { loginUser } from '../services/api.js'; // authService importieren
+import { useAuth } from '../context/AuthContext';
+//import { loginUser } from '../services/api';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth();  // Login-Funktion aus dem AuthContext
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Einfache Validierung
         if (!email || !password) {
             setError('Bitte füllen Sie alle Felder aus.');
             return;
         }
 
         try {
-            // Versuch, den Benutzer zu authentifizieren
             const response = await loginUser(email, password);
-
-            // Wenn erfolgreich, speichern wir die Benutzerinformationen im AuthContext
             if (response.success) {
-                login(response.user);  // Benutzer im AuthContext einloggen
-                navigate('/');  // Weiter zur Startseite oder Dashboard
+                login(response.user);
+                navigate('/');
             } else {
                 setError(response.message || 'Anmeldung fehlgeschlagen.');
             }
@@ -39,7 +34,7 @@ function Login() {
     return (
         <div className="max-w-md mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Anmelden</h1>
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-red-500 mb-4">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -74,6 +69,13 @@ function Login() {
                     Anmelden
                 </button>
             </form>
+
+            <p className="mt-4 text-center text-sm">
+                Noch kein Konto?{' '}
+                <a href="/register" className="text-blue-500 hover:underline">
+                    Jetzt registrieren
+                </a>
+            </p>
         </div>
     );
 }
