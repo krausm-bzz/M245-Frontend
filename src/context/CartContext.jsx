@@ -1,35 +1,41 @@
 import React, { createContext, useState, useContext } from 'react';
 
-// 1. Context erstellen
 export const CartContext = createContext();
 
-// 2. Provider-Komponente exportieren
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
 
-    // Produkt zum Warenkorb hinzufügen
     const addToCart = (product) => {
         setCartItems((prevItems) => {
-            const existing = prevItems.find((item) => item.id === product.id);
+            const existing = prevItems.find(
+                (item) => item.productId._id === product._id
+            );
+
             if (existing) {
                 return prevItems.map((item) =>
-                    item.id === product.id
+                    item.productId._id === product._id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
-            return [...prevItems, { ...product, quantity: 1 }];
+
+            return [
+                ...prevItems,
+                {
+                    productId: product,
+                    quantity: 1,
+                    price: product.price,
+                }
+            ];
         });
     };
 
-    // Produkt aus dem Warenkorb entfernen
-    const removeFromCart = (id) => {
+    const removeFromCart = (productId) => {
         setCartItems((prevItems) =>
-            prevItems.filter((item) => item.id !== id)
+            prevItems.filter((item) => item.productId._id !== productId)
         );
     };
 
-    // Warenkorb komplett leeren
     const clearCart = () => {
         setCartItems([]);
     };
@@ -48,5 +54,4 @@ export const CartProvider = ({ children }) => {
     );
 };
 
-// 3. Custom Hook (optional, für bequemere Nutzung)
 export const useCart = () => useContext(CartContext);

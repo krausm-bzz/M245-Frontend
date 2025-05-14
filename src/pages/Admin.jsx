@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-//import productService from '../services/api'; // passt das ggf. an, je nach Struktur
+import {getAllProducts} from '../services/api'; // passt das ggf. an, je nach Struktur
 import ProductList from '../components/ProductList'; // zur Not erstellen wir einfache Darstellung
 
 const Admin = () => {
@@ -13,7 +13,7 @@ const Admin = () => {
 
     const loadProducts = async () => {
         try {
-            const res = await productService.getAllProducts();
+            const res = await getAllProducts();
             setProducts(res);
         } catch (err) {
             console.error('Fehler beim Laden der Produkte', err);
