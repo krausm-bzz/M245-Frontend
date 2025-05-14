@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ProductList from '../components/ProductList';
+import ProductList from '../components/ProductList';  // Ensure the path is correct
 import Loader from '../components/Loader'; // falls vorhanden
 import { getAllProducts } from '../services/api.js'; // API-Fetch
 
@@ -10,7 +10,9 @@ export default function Home() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const result = await getAllProducts(); // Beispiel-Fetch
+                const token = localStorage.getItem('token');
+                const result = await getAllProducts(token);
+
                 setProducts(result);
             } catch (error) {
                 console.error('Fehler beim Laden der Produkte:', error);

@@ -18,18 +18,19 @@ function Login() {
         }
 
         try {
-            const response = await loginUser(email, password);
-            if (response.success) {
-                login(response.user);
-                navigate('/');
-            } else {
-                setError(response.message || 'Anmeldung fehlgeschlagen.');
-            }
+            const response = await loginUser(email, password); // should return { token }
+            const token = response.token;
+
+            // OPTIONAL: decode token for user info, if backend doesn't return user object
+            const user = { email }; // or decode token if needed
+            login(token, user);  // Pass both to context
+            navigate('/');
         } catch (err) {
             setError('Es gab ein Problem bei der Anmeldung.');
             console.error(err);
         }
     };
+
 
     return (
         <div className="max-w-md mx-auto p-4">

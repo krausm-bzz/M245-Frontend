@@ -1,41 +1,42 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// 1. Context erstellen
 export const AuthContext = createContext();
 
-// 2. Provider-Komponente
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
 
-    // Bei App-Start prüfen, ob User gespeichert ist
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('token');
+        if (storedUser && storedToken) {
             setUser(JSON.parse(storedUser));
+            setToken(storedToken);
         }
     }, []);
 
-    // Einloggen
-    const login = (userData) => {
+    const login = (tokenValue, userData) => {
         setUser(userData);
+        setToken(tokenValue);
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', tokenValue);
     };
 
-    // Ausloggen
     const logout = () => {
         setUser(null);
+        setToken(null);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
-    // Prüfen ob eingeloggt
-    const isAuthenticated = !!user;
+    const isAuthenticated = !!token;
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// 3. Optionaler Custom Hook
+// 🔧 This must be exported explicitly
 export const useAuth = () => useContext(AuthContext);
