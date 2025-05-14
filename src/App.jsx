@@ -6,6 +6,9 @@ import AppRoutes from './router';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
+import './assets/prototype.css';
+
+
 function App() {
     return (
         <AuthProvider>
