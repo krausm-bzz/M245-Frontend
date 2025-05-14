@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
     const { name, description, price, discount, sizes, images } = product;
