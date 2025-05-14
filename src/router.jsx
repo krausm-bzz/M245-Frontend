@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
+import Cart from './pages/CartPage';
 import Checkout from './pages/Checkout';
 import Impressum from './pages/Impressum';
 import Datenschutz from './pages/Datenschutz';
