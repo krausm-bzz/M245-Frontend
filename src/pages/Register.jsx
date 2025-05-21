@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Zum Zugriff auf den AuthContext
-import { registerUser } from '../services/api.js'; // API-Service zum Registrieren eines Benutzers
+import {loginUser, registerUser} from '../services/api.js'; // API-Service zum Registrieren eines Benutzers
 
 function Register() {
     const [email, setEmail] = useState('');
@@ -25,7 +25,6 @@ function Register() {
         setLoading(true);
         setError(null);
 
-        // Validierung der Eingabefelder
         if (!email || !password || !username || !firstName || !lastName || !street || !city || !zip || !country || !phone) {
             setError('Alle Felder sind erforderlich!');
             setLoading(false);
@@ -33,8 +32,8 @@ function Register() {
         }
 
         try {
-            // API-Aufruf zur Registrierung des Benutzers mit allen notwendigen Feldern
-            const userData = await registerUser({
+            // REGISTRIERUNG
+            await registerUser({
                 email,
                 password,
                 username,
@@ -43,14 +42,28 @@ function Register() {
                 address: { street, city, state, zip, country },
                 phone
             });
-            login(userData); // Nach erfolgreicher Registrierung den Benutzer einloggen
-            navigate('/'); // Weiterleitung zur Startseite nach der Anmeldung
+
+            // NUR BEI ERFOLGREICHER REGISTRIERUNG EINLOGGEN
+            try {
+                const loginResponse = await loginUser(email, password);
+                login(loginResponse.token);
+                navigate('/profile');
+            } catch (loginError) {
+                setError('Anmeldung nach der Registrierung fehlgeschlagen.');
+            }
+
         } catch (err) {
-            setError('Registrierung fehlgeschlagen: ' + err.message);
+            // Fehler vom Backend anzeigen
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError('Registrierung fehlgeschlagen: Email oder Benutzergabe schon vergeben.');
+            }
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-md">

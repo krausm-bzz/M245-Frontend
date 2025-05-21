@@ -12,25 +12,22 @@ function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
         if (!email || !password) {
             setError('Bitte füllen Sie alle Felder aus.');
             return;
         }
 
         try {
-            const response = await loginUser(email, password); // should return { token }
-            const token = response.token;
-
-            // OPTIONAL: decode token for user info, if backend doesn't return user object
-            const user = { email }; // or decode token if needed
-            login(token, user);  // Pass both to context
-            navigate('/');
+            const response = await loginUser(email, password); // { token }
+            await login(response.token); // nur Token übergeben, User wird im AuthContext geladen
+            navigate('/profile'); // Profilseite nach Login
         } catch (err) {
-            setError('Es gab ein Problem bei der Anmeldung.');
+            setError('Email oder Passwort falsch!');
             console.error(err);
         }
     };
-
 
     return (
         <div className="max-w-md mx-auto p-4">
@@ -63,10 +60,7 @@ function Login() {
                         required
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded-md"
-                >
+                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md">
                     Anmelden
                 </button>
             </form>
