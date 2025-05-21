@@ -1,5 +1,5 @@
 import React from 'react';
-
+const API_BASE = 'http://localhost:5000/';
 export default function ProductCard({ product }) {
     const { name, description, price, discount, sizes, images } = product;
 
@@ -13,7 +13,7 @@ export default function ProductCard({ product }) {
         <div className="p-4 border rounded shadow hover:shadow-md transition">
             {images?.[0] && (
                 <img
-                    src={images[0]}
+                    src={API_BASE + images[0]}
                     alt={name}
                     className="w-full h-48 object-cover rounded mb-3"
                 />

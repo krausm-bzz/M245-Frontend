@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
+const API_BASE = 'http://localhost:5000/';
 
 export default function Header() {
     const { cartItems } = useContext(CartContext);

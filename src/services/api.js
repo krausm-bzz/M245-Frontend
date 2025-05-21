@@ -61,7 +61,6 @@ export const getAllProducts = async (token) => {
     const res = await fetch(`${API_BASE}/products`, {
         headers: getAuthHeaders(token) // Ensure token is included
     });
-    console.log(res)
 
     if (!res.ok) {
         throw new Error('Unauthorized or failed to fetch products');
