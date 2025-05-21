@@ -25,6 +25,19 @@ function Register() {
         setLoading(true);
         setError(null);
 
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+            return;
+        }
+
+        // Passwortlänge prüfen
+        if (password.length < 6) {
+            setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+            setLoading(false);
+            return;
+        }
+
+
         if (!email || !password || !username || !firstName || !lastName || !street || !city || !zip || !country || !phone) {
             setError('Alle Felder sind erforderlich!');
             setLoading(false);

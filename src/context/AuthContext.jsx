@@ -1,58 +1,51 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getUser } from '../services/api'; // Funktion, die Userdaten vom Backend holt
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('token');
-
-        try {
-            if (storedUser && storedToken) {
-                setUser(JSON.parse(storedUser));
-                setToken(storedToken);
-            }
-        } catch {
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
+        // Token aus LocalStorage laden
+        const savedToken = localStorage.getItem('token');
+        if (savedToken) {
+            // Optional: Hier könntest du Token validieren oder Userdaten laden
+            setToken(savedToken);
+            setIsAuthenticated(true);
+            // Beispiel: user aus Token extrahieren oder API Request machen
+            setUser({ email: 'demo@example.com' }); // Dummy User, ersetze nach Bedarf
+        } else {
+            setIsAuthenticated(false);
             setUser(null);
             setToken(null);
         }
+        setLoading(false);
     }, []);
 
-    // login ist jetzt async, lädt Userdaten nach Setzen des Tokens
-    const login = async (tokenValue) => {
-        setToken(tokenValue);
-        localStorage.setItem('token', tokenValue);
-
-        try {
-            const userData = await getUser(tokenValue);
-            setUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-        } catch (error) {
-            console.error('Fehler beim Laden der Benutzerdaten:', error);
-            logout();
-        }
+    const login = (newToken, userData) => {
+        localStorage.setItem('token', newToken);
+        setToken(newToken);
+        setUser(userData);
+        setIsAuthenticated(true);
     };
 
     const logout = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem('user');
         localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setIsAuthenticated(false);
     };
 
-    const isAuthenticated = !!token;
-
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, token, isAuthenticated, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+    return useContext(AuthContext);
+}

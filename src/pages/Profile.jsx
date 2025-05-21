@@ -20,18 +20,18 @@ const getLabel = (key) => {
 };
 
 function Profile() {
-    const { user, token, logout, isAuthenticated } = useAuth();
+    const { user, token, logout, isAuthenticated, loading } = useAuth();
     const navigate = useNavigate();
     const [formData, setFormData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loadingData, setLoadingData] = useState(true);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!loading && !isAuthenticated) {
             navigate('/login');
         }
-    }, [isAuthenticated, navigate]);
+    }, [loading, isAuthenticated, navigate]);
 
     useEffect(() => {
         if (isAuthenticated && user) {
@@ -53,7 +53,7 @@ function Profile() {
                 } catch (err) {
                     setError('Fehler beim Abrufen der Benutzerdaten: ' + err.message);
                 } finally {
-                    setLoading(false);
+                    setLoadingData(false);
                 }
             };
 
@@ -67,8 +67,15 @@ function Profile() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError(null);
+
+        // E-Mail-Validierung
+        if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+            return;
+        }
+
+        setLoadingData(true);
         try {
             await updateUser(formData, token);
             alert('Daten wurden erfolgreich aktualisiert!');
@@ -76,7 +83,7 @@ function Profile() {
         } catch (err) {
             setError('Fehler beim Speichern der Daten: ' + err.message);
         } finally {
-            setLoading(false);
+            setLoadingData(false);
         }
     };
 
@@ -85,7 +92,7 @@ function Profile() {
         if (!confirmDelete) return;
 
         try {
-            await deleteUser( token);
+            await deleteUser(token);
             logout(); // Benutzer ausloggen
             alert('Konto wurde gelöscht.');
             navigate('/');
@@ -94,7 +101,7 @@ function Profile() {
         }
     };
 
-    if (loading || !formData) {
+    if (loading || loadingData || !formData) {
         return <div>Lädt...</div>;
     }
 
@@ -108,9 +115,7 @@ function Profile() {
                     <ul className="space-y-2">
                         {Object.entries(formData).map(([key, value]) => (
                             <li key={key} className="flex justify-between border-b pb-1">
-                    <span className="font-medium">
-                        {getLabel(key)}:
-                    </span>
+                                <span className="font-medium">{getLabel(key)}:</span>
                                 <span>{value}</span>
                             </li>
                         ))}
