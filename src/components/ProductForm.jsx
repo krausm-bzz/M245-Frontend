@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { createProduct } from "../services/api.js";
 
 const ProductForm = ({ product, onSave, onCancel }) => {
+    const [newSize, setNewSize] = useState('');
+    const [newStock, setNewStock] = useState('');
+
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
-        images: '',
+        images: [],
         category: '',
-        sizes: '',
+        sizes: [],
         discount: { amount: '', expiresAt: '' },
         tags: '',
         material: '',
@@ -22,9 +26,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                 name: product.name || '',
                 description: product.description || '',
                 price: product.price || '',
-                images: product.images?.join(', ') || '',
+                images: [], // leer, da Dateien nicht geladen werden können
                 category: product.category || '',
-                sizes: product.sizes?.map(size => `${size.size}:${size.stock}`).join(', ') || '',
+                sizes: product.sizes || [],
                 discount: product.discount || { amount: '', expiresAt: '' },
                 tags: product.tags?.join(', ') || '',
                 material: product.material || '',
@@ -34,36 +38,88 @@ const ProductForm = ({ product, onSave, onCancel }) => {
         }
     }, [product]);
 
-    // Handle changes in form fields
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+
+        // Handling verschachtelter discount-Felder
+        if (name === 'discountAmount') {
+            setFormData(prev => ({
+                ...prev,
+                discount: {
+                    ...prev.discount,
+                    amount: value
+                }
+            }));
+        } else if (name === 'expiresAt') {
+            setFormData(prev => ({
+                ...prev,
+                discount: {
+                    ...prev.discount,
+                    expiresAt: value
+                }
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value
+            }));
+        }
     };
 
-    // Convert sizes to the right format
-    const handleSave = () => {
-        const sizesArray = formData.sizes.split(',').map(size => {
-            const [sizeName, stock] = size.split(':');
-            return { size: sizeName.trim(), stock: parseInt(stock.trim()) };
-        });
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const formPayload = new FormData();
 
-        const dataToSave = {
-            ...formData,
-            sizes: sizesArray,
-            images: formData.images.split(',').map(img => img.trim()),
-            tags: formData.tags.split(',').map(tag => tag.trim()),
-        };
+            formPayload.append('name', formData.name);
+            formPayload.append('description', formData.description);
+            formPayload.append('price', formData.price);
+            formPayload.append('category', formData.category);
+            formPayload.append('material', formData.material);
+            formPayload.append('gender', formData.gender);
+            formPayload.append('ageGroup', formData.ageGroup);
 
-        onSave(dataToSave); // Pass the form data to the parent for saving
+            // discount einzeln als Felder senden
+            formPayload.append('discount[amount]', formData.discount.amount || '');
+            formPayload.append('discount[expiresAt]', formData.discount.expiresAt || '');
+
+            formPayload.append('sizes', JSON.stringify(formData.sizes));
+            formPayload.append('tags', JSON.stringify(formData.tags.split(',').map(t => t.trim()).filter(Boolean)));
+
+            if (formData.images && formData.images.length > 0) {
+                formData.images.forEach(file => formPayload.append('images', file));
+            }
+
+            const saved = await createProduct(formPayload, token);
+            onSave(saved);
+        } catch (err) {
+            console.error('Fehler beim Erstellen des Produkts:', err);
+        }
+    };
+
+    const handleAddSize = () => {
+        if (newSize && newStock && !isNaN(newStock)) {
+            setFormData(prev => ({
+                ...prev,
+                sizes: [...prev.sizes, { size: newSize.trim(), stock: parseInt(newStock, 10) }]
+            }));
+            setNewSize('');
+            setNewStock('');
+        }
+    };
+
+    const handleRemoveSize = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            sizes: prev.sizes.filter((_, i) => i !== index)
+        }));
     };
 
     return (
         <div className="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-semibold mb-4">{product ? 'Produkt bearbeiten' : 'Neues Produkt erstellen'}</h2>
             <div className="space-y-4">
+                {/* Name */}
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium">Name</label>
                     <input
@@ -76,6 +132,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Description */}
                 <div>
                     <label htmlFor="description" className="block text-sm font-medium">Beschreibung</label>
                     <textarea
@@ -87,6 +144,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Price */}
                 <div>
                     <label htmlFor="price" className="block text-sm font-medium">Preis (€)</label>
                     <input
@@ -99,18 +157,21 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Images */}
                 <div>
-                    <label htmlFor="images" className="block text-sm font-medium">Bilder (URLs durch Kommas trennen)</label>
+                    <label htmlFor="images" className="block text-sm font-medium">Bilder (Dateien auswählen)</label>
                     <input
-                        type="text"
+                        type="file"
                         id="images"
                         name="images"
-                        value={formData.images}
-                        onChange={handleChange}
+                        multiple
+                        accept="image/*"
+                        onChange={(e) => setFormData(prev => ({ ...prev, images: Array.from(e.target.files) }))}
                         className="w-full p-2 border rounded-md"
                     />
                 </div>
 
+                {/* Category */}
                 <div>
                     <label htmlFor="category" className="block text-sm font-medium">Kategorie</label>
                     <input
@@ -123,18 +184,52 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Sizes */}
                 <div>
-                    <label htmlFor="sizes" className="block text-sm font-medium">Größen & Lager (Größe:Bestand, durch Kommas trennen)</label>
-                    <input
-                        type="text"
-                        id="sizes"
-                        name="sizes"
-                        value={formData.sizes}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded-md"
-                    />
+                    <label className="block text-sm font-medium mb-1">Größen & Lagerbestand</label>
+                    <div className="flex gap-2 mb-2">
+                        <input
+                            type="text"
+                            placeholder="Größe"
+                            value={newSize}
+                            onChange={(e) => setNewSize(e.target.value)}
+                            className="p-2 border rounded w-1/2"
+                        />
+                        <input
+                            type="number"
+                            placeholder="Lagerbestand"
+                            value={newStock}
+                            onChange={(e) => setNewStock(e.target.value)}
+                            className="p-2 border rounded w-1/2"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleAddSize}
+                            className="bg-green-500 text-white px-4 py-2 rounded"
+                        >
+                            Hinzufügen
+                        </button>
+                    </div>
+
+                    {formData.sizes.length > 0 && (
+                        <ul className="space-y-1">
+                            {formData.sizes.map((s, index) => (
+                                <li key={index} className="flex justify-between items-center border px-2 py-1 rounded">
+                                    <span>{s.size} - {s.stock} Stück</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveSize(index)}
+                                        className="text-red-500 hover:underline"
+                                    >
+                                        Entfernen
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
+                {/* Discount */}
                 <div>
                     <label htmlFor="discount" className="block text-sm font-medium">Rabatt</label>
                     <div className="flex space-x-4">
@@ -159,6 +254,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     </div>
                 </div>
 
+                {/* Tags */}
                 <div>
                     <label htmlFor="tags" className="block text-sm font-medium">Tags (durch Kommas trennen)</label>
                     <input
@@ -171,6 +267,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Material */}
                 <div>
                     <label htmlFor="material" className="block text-sm font-medium">Material</label>
                     <input
@@ -183,6 +280,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Gender */}
                 <div>
                     <label htmlFor="gender" className="block text-sm font-medium">Geschlecht</label>
                     <input
@@ -195,6 +293,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Age Group */}
                 <div>
                     <label htmlFor="ageGroup" className="block text-sm font-medium">Zielgruppe</label>
                     <input
@@ -207,6 +306,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                     />
                 </div>
 
+                {/* Save and Cancel Buttons */}
                 <div className="flex space-x-4 mt-4">
                     <button
                         type="button"

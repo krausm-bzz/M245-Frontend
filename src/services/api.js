@@ -79,11 +79,21 @@ export const getProduct = async (productId) => {
 export const createProduct = async (data, token) => {
     const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
-        headers: getAuthHeaders(token),
-        body: JSON.stringify(data)
+        headers: {
+            Authorization: `Bearer ${token}`, // kein Content-Type bei FormData
+        },
+        body: data,  // data ist schon FormData vom Frontend
     });
+
+    if (!res.ok) {
+        throw new Error('Produkt konnte nicht erstellt werden');
+    }
+
     return res.json();
 };
+
+
+
 
 export const updateProduct = async (productId, data, token) => {
     const res = await fetch(`${API_BASE}/products/${productId}`, {
@@ -91,8 +101,14 @@ export const updateProduct = async (productId, data, token) => {
         headers: getAuthHeaders(token),
         body: JSON.stringify(data)
     });
+
+    if (!res.ok) {
+        throw new Error('Produkt konnte nicht aktualisiert werden');
+    }
+
     return res.json();
 };
+
 
 export const deleteProduct = async (productId, token) => {
     await fetch(`${API_BASE}/products/${productId}`, {
@@ -146,4 +162,39 @@ export const deleteOrder = async (orderId, token) => {
         method: 'DELETE',
         headers: getAuthHeaders(token)
     });
+};
+
+// --- CURRENT USER ---
+export const getCurrentUser = async (token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        headers: getAuthHeaders(token)
+    });
+
+    if (!res.ok) throw new Error("Nicht authentifiziert");
+
+    return res.json();
+};
+
+
+export const updateCurrentUser = async (data, token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        method: 'PUT',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify(data)
+    });
+
+    return res.json();
+};
+
+export const deleteCurrentUser = async (token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(token)
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to delete current user');
+    }
+
+    return res.json();
 };

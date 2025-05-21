@@ -1,25 +1,38 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getCurrentUser } from "../services/api";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token') || null);
+    const [loading, setLoading] = useState(true); // wichtig für Initial-Ladezustand
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('token');
-        if (storedUser && storedToken) {
-            setUser(JSON.parse(storedUser));
-            setToken(storedToken);
-        }
-    }, []);
+        const fetchUser = async () => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
 
-    const login = (tokenValue, userData) => {
-        setUser(userData);
-        setToken(tokenValue);
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', tokenValue);
+            try {
+                const userData = await getCurrentUser(token);
+                setUser(userData);
+                localStorage.setItem('user', JSON.stringify(userData));
+            } catch (err) {
+                console.error("Fehler beim Abrufen des Benutzers:", err);
+                logout(); // bei Fehler alles löschen
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [token]);
+
+    const login = async (newToken) => {
+        localStorage.setItem('token', newToken);
+        setToken(newToken);
     };
 
     const logout = () => {
@@ -29,14 +42,14 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
     };
 
-    const isAuthenticated = !!token;
+    const isAuthenticated = !!token && !!user;
+    const isAdmin = !!user?.isAdmin;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated, isAdmin, loading }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// 🔧 This must be exported explicitly
 export const useAuth = () => useContext(AuthContext);

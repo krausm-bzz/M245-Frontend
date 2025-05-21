@@ -7,12 +7,12 @@ import logo from "../assets/logo.png";
 
 export default function Header() {
     const { cartItems } = useContext(CartContext);
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, isAdmin, logout, loading } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
-        navigate("/"); // Zurück zur Startseite
+        navigate("/");
     };
 
     return (
@@ -29,11 +29,13 @@ export default function Header() {
                             {cartItems.length}
                         </span>
                     </Link>
-                    {isAuthenticated ? (
-                        <button
-                            onClick={handleLogout}
-                            className="text-gray-700 hover:text-red-500"
-                        >
+
+                    {!loading && isAuthenticated && isAdmin && (
+                        <Link to="/admin" className="text-gray-700 hover:text-purple-600">Admin</Link>
+                    )}
+
+                    {!loading && isAuthenticated ? (
+                        <button onClick={handleLogout} className="text-gray-700 hover:text-red-500">
                             Logout
                         </button>
                     ) : (

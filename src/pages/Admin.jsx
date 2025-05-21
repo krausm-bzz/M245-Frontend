@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../services/api'; // Passe den Importpfad nach Bedarf an
-import ProductList from '../components/ProductList'; // Zur Not erstellen wir einfache Darstellung
-import ProductForm from '../components/ProductForm'; // Annahme: Du hast ein Formular zur Bearbeitung von Produkten
+import { useAuth } from '../context/AuthContext';
+import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../services/api';
+import ProductList from '../components/ProductList';
+import ProductForm from '../components/ProductForm';
+import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {
+    const { user, token, isAuthenticated } = useAuth();
     const [products, setProducts] = useState([]);
     const [editingProduct, setEditingProduct] = useState(null);
     const [showForm, setShowForm] = useState(false);
+    const navigate = useNavigate();
 
-    // Lädt alle Produkte, wenn die Seite geladen wird
     useEffect(() => {
-        loadProducts();
-    }, []);
+        if (!isAuthenticated || !user?.isAdmin) {
+            navigate('/'); // Redirect, wenn kein Admin
+        } else {
+            loadProducts();
+        }
+    }, [isAuthenticated, user]);
 
     const loadProducts = async () => {
         try {
-            const res = await getAllProducts();
+            const res = await getAllProducts(token);
             setProducts(res);
         } catch (err) {
             console.error('Fehler beim Laden der Produkte', err);
@@ -23,20 +30,20 @@ const Admin = () => {
     };
 
     const handleAdd = () => {
-        setEditingProduct(null); // Keines zum Bearbeiten
-        setShowForm(true); // Formular anzeigen
+        setEditingProduct(null);
+        setShowForm(true);
     };
 
     const handleEdit = (product) => {
-        setEditingProduct(product); // Produkt zum Bearbeiten auswählen
-        setShowForm(true); // Formular anzeigen
+        setEditingProduct(product);
+        setShowForm(true);
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Produkt wirklich löschen?')) {
             try {
-                await deleteProduct(id); // Löscht das Produkt
-                loadProducts(); // Lade die Produktliste nach dem Löschen neu
+                await deleteProduct(id, token);
+                loadProducts();
             } catch (err) {
                 console.error('Fehler beim Löschen', err);
             }
@@ -45,17 +52,26 @@ const Admin = () => {
 
     const handleSave = async (data) => {
         try {
+            // Überprüfen, ob das Produkt bearbeitet oder neu erstellt wird
             if (editingProduct) {
-                await updateProduct(editingProduct.id, data); // Produkt aktualisieren
+                // Wenn ein Produkt bearbeitet wird
+                const updatedProduct = await updateProduct(editingProduct.id, data, token);
+                console.log('Produkt erfolgreich aktualisiert:', updatedProduct);
             } else {
-                await createProduct(data); // Neues Produkt erstellen
+                // Wenn ein neues Produkt erstellt wird
+                const newProduct = await createProduct(data, token);
+                console.log('Neues Produkt erfolgreich erstellt:', newProduct);
             }
+
             setShowForm(false); // Formular schließen
-            loadProducts(); // Lade die Produktliste nach dem Speichern neu
+            loadProducts(); // Liste der Produkte neu laden
         } catch (err) {
-            console.error('Fehler beim Speichern', err);
+            console.error('Fehler beim Speichern des Produkts:', err);
         }
     };
+
+
+
 
     return (
         <div className="p-6">
