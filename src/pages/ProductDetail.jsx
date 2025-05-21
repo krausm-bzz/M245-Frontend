@@ -54,7 +54,10 @@ function ProductDetail({ product, addToCart }) {
                     )}
 
                     <button
-                        onClick={addToCart}
+                        onClick={() => {
+                            console.log('Button clicked');
+                            addToCart();
+                        }}
                         className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-md"
                     >
                         In den Warenkorb
