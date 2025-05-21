@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { getUser } from '../services/api'; // Funktion, die Userdaten vom Backend holt
 
 export const AuthContext = createContext();
 
@@ -9,17 +10,33 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         const storedToken = localStorage.getItem('token');
-        if (storedUser && storedToken) {
-            setUser(JSON.parse(storedUser));
-            setToken(storedToken);
+
+        try {
+            if (storedUser && storedToken) {
+                setUser(JSON.parse(storedUser));
+                setToken(storedToken);
+            }
+        } catch {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            setUser(null);
+            setToken(null);
         }
     }, []);
 
-    const login = (tokenValue, userData) => {
-        setUser(userData);
+    // login ist jetzt async, lädt Userdaten nach Setzen des Tokens
+    const login = async (tokenValue) => {
         setToken(tokenValue);
-        localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', tokenValue);
+
+        try {
+            const userData = await getUser(tokenValue);
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+        } catch (error) {
+            console.error('Fehler beim Laden der Benutzerdaten:', error);
+            logout();
+        }
     };
 
     const logout = () => {
@@ -38,5 +55,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// 🔧 This must be exported explicitly
 export const useAuth = () => useContext(AuthContext);

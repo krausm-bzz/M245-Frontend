@@ -11,6 +11,8 @@ import Datenschutz from './pages/Datenschutz';
 import AdminDashboard from './pages/Admin';
 import AGB from './pages/AGB';
 import Widerrufsrecht from './pages/Widerruf.jsx';
+import Profile from './pages/Profile'; // Pfad ggf. anpassen
+
 
 function AppRoutes() {
     return (
@@ -26,6 +28,7 @@ function AppRoutes() {
             <Route path="/AGB" element={<AGB />} />
             <Route path="/Widerrufsrecht" element={<Widerrufsrecht />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/profile" element={<Profile />} />
         </Routes>
     );
 }
