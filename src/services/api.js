@@ -14,8 +14,8 @@ export const getAllUsers = async (token) => {
     return res.json();
 };
 
-export const getUser = async (userId, token) => {
-    const res = await fetch(`${API_BASE}/users/${userId}`, {
+export const getUser = async (token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
         headers: getAuthHeaders(token)
     });
     return res.json();
@@ -24,11 +24,21 @@ export const getUser = async (userId, token) => {
 export const registerUser = async (data) => {
     const res = await fetch(`${API_BASE}/users/register`, {
         method: 'POST',
-        headers: getAuthHeaders(), // No token needed for registration
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(data)
     });
-    return res.json();
+
+    const result = await res.json();
+
+    if (!res.ok) {
+        throw new Error(result.error || 'Registrierung fehlgeschlagen.');
+    }
+
+    return result;
 };
+
 
 export const loginUser = async (email, password) => {
     const res = await fetch(`${API_BASE}/users/login`, {
@@ -40,8 +50,8 @@ export const loginUser = async (email, password) => {
     return res.json(); // Should return { token: "..." }
 };
 
-export const updateUser = async (userId, data, token) => {
-    const res = await fetch(`${API_BASE}/users/${userId}`, {
+export const updateUser = async (data, token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
         method: 'PUT',
         headers: getAuthHeaders(token),
         body: JSON.stringify(data)
@@ -49,8 +59,8 @@ export const updateUser = async (userId, data, token) => {
     return res.json();
 };
 
-export const deleteUser = async (userId, token) => {
-    await fetch(`${API_BASE}/users/${userId}`, {
+export const deleteUser = async (token) => {
+    await fetch(`${API_BASE}/users/me`, {
         method: 'DELETE',
         headers: getAuthHeaders(token)
     });
