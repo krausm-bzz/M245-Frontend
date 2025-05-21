@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getAllProducts, deleteProduct, createProduct, updateProduct } from '../services/api';
 import ProductList from '../components/ProductList';
@@ -12,10 +12,13 @@ const Admin = () => {
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
+    const didFetch = useRef(false);
+
     useEffect(() => {
         if (!isAuthenticated || !user?.isAdmin) {
-            navigate('/'); // Redirect, wenn kein Admin
-        } else {
+            navigate('/');
+        } else if (!didFetch.current) {
+            didFetch.current = true;
             loadProducts();
         }
     }, [isAuthenticated, user]);
