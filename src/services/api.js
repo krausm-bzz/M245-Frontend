@@ -198,3 +198,17 @@ export const deleteCurrentUser = async (token) => {
 
     return res.json();
 };
+
+// Fetch image as blob and return an Object URL usable in img src
+export const fetchProductImage = async (filename) => {
+    const shortName = filename.split('\\').pop();
+    const res = await fetch(`${API_BASE}/products/image/${shortName}`);
+
+    if (!res.ok) {
+        throw new Error('Image not found');
+    }
+
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+};
+

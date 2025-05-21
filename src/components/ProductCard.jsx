@@ -1,7 +1,19 @@
-import React from 'react';
-const API_BASE = 'http://localhost:5000/';
+import React, { useEffect, useState } from 'react';
+import { fetchProductImage } from '../services/api'; // make sure this exists!
+
+const API_BASE = 'http://localhost:5000/'; // or wherever your backend lives
+
 export default function ProductCard({ product }) {
     const { name, description, price, discount, sizes, images } = product;
+    const [imageUrl, setImageUrl] = useState(null);
+
+    useEffect(() => {
+        if (images?.[0]) {
+            fetchProductImage(images[0])
+                .then(url => setImageUrl(url))
+                .catch(() => setImageUrl(null));
+        }
+    }, [images]);
 
     const discountedPrice = discount && new Date(discount.expiresAt) > new Date()
         ? (price - discount.amount).toFixed(2)
@@ -11,9 +23,9 @@ export default function ProductCard({ product }) {
 
     return (
         <div className="p-4 border rounded shadow hover:shadow-md transition">
-            {images?.[0] && (
+            {imageUrl && (
                 <img
-                    src={API_BASE + images[0]}
+                    src={imageUrl}
                     alt={name}
                     className="w-full h-48 object-cover rounded mb-3"
                 />
