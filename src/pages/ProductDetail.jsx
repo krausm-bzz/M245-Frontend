@@ -1,9 +1,12 @@
 import React from 'react';
-
 function ProductDetail({ product, addToCart }) {
     // Extract the first image (if available) to display as the main image
-    const mainImage = product.images && product.images.length > 0 ? product.images[0] : null;
+    const mainImage =
+        product.images && product.images.length > 0
+            ? 'http://localhost:5000/' + product.images[0].replace(/\\/g, '/')
+            : null;
 
+    console.log(mainImage)
     // Calculate the price after discount (if applicable)
     const priceWithDiscount = product.discount
         ? product.price - product.discount.amount
