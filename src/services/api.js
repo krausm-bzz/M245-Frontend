@@ -108,7 +108,10 @@ export const createProduct = async (data, token) => {
 export const updateProduct = async (productId, data, token) => {
     const res = await fetch(`${API_BASE}/products/${productId}`, {
         method: 'PUT',
-        headers: getAuthHeaders(token),
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(data)
     });
 
@@ -118,6 +121,8 @@ export const updateProduct = async (productId, data, token) => {
 
     return res.json();
 };
+
+
 
 
 export const deleteProduct = async (productId, token) => {

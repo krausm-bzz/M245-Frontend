@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createProduct } from "../services/api.js";
 
-const ProductForm = ({ product, onCancel }) => {
+const ProductForm = ({ product, onCancel, onSave }) => {
     const [newSize, setNewSize] = useState('');
     const [newStock, setNewStock] = useState('');
-
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -20,7 +18,7 @@ const ProductForm = ({ product, onCancel }) => {
     });
 
     const hasSubmitted = useRef(false);
-    const initialized = useRef(false); // ✅ Fix: define initialized ref
+    const initialized = useRef(false);
 
     useEffect(() => {
         if (product && !initialized.current) {
@@ -43,83 +41,47 @@ const ProductForm = ({ product, onCancel }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         if (name === 'discountAmount') {
             setFormData(prev => ({
                 ...prev,
-                discount: {
-                    ...prev.discount,
-                    amount: value
-                }
+                discount: { ...prev.discount, amount: value }
             }));
         } else if (name === 'expiresAt') {
             setFormData(prev => ({
                 ...prev,
-                discount: {
-                    ...prev.discount,
-                    expiresAt: value
-                }
+                discount: { ...prev.discount, expiresAt: value }
             }));
         } else {
-            setFormData(prevState => ({
-                ...prevState,
-                [name]: value
-            }));
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (hasSubmitted.current) return;
         hasSubmitted.current = true;
 
+        // prepare plain JS object (not FormData)
+        const data = {
+            name: formData.name,
+            description: formData.description,
+            price: formData.price,
+            category: formData.category,
+            material: formData.material,
+            gender: formData.gender,
+            ageGroup: formData.ageGroup,
+            discount: {
+                amount: formData.discount.amount || '',
+                expiresAt: formData.discount.expiresAt || '',
+            },
+            sizes: formData.sizes,
+            tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+            // Note: images are omitted here because sending files in JSON isn't possible,
+            // you need a separate endpoint or multipart/form-data for that.
+        };
 
-        try {
-            const token = localStorage.getItem('token');
-            const formPayload = new FormData();
-
-            formPayload.append('name', formData.name);
-            formPayload.append('description', formData.description);
-            formPayload.append('price', formData.price);
-            formPayload.append('category', formData.category);
-            formPayload.append('material', formData.material);
-            formPayload.append('gender', formData.gender);
-            formPayload.append('ageGroup', formData.ageGroup);
-            formPayload.append('discount[amount]', formData.discount.amount || '');
-            formPayload.append('discount[expiresAt]', formData.discount.expiresAt || '');
-            formPayload.append('sizes', JSON.stringify(formData.sizes));
-            formPayload.append('tags', JSON.stringify(formData.tags.split(',').map(t => t.trim()).filter(Boolean)));
-
-            if (formData.images && formData.images.length > 0) {
-                formData.images.forEach(file => formPayload.append('images', file));
-            }
-
-            await createProduct(formPayload, token);
-
-            // ✅ Reset form after successful submission
-            setFormData({
-                name: '',
-                description: '',
-                price: '',
-                images: [],
-                category: '',
-                sizes: [],
-                discount: { amount: '', expiresAt: '' },
-                tags: '',
-                material: '',
-                gender: '',
-                ageGroup: '',
-            });
-
-            setNewSize('');
-            setNewStock('');
-            initialized.current = false;
-            hasSubmitted.current = false;
-
-        } catch (err) {
-            console.error('Fehler beim Erstellen des Produkts:', err);
-            hasSubmitted.current = false;
-        }
+        onSave(data, product);
     };
+
 
     const handleAddSize = () => {
         if (newSize && newStock && !isNaN(newStock)) {
@@ -145,17 +107,17 @@ const ProductForm = ({ product, onCancel }) => {
             <div className="space-y-4">
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium">Name</label>
-                    <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="name" name="name" value={formData.name || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label htmlFor="description" className="block text-sm font-medium">Beschreibung</label>
-                    <textarea id="description" name="description" value={formData.description} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <textarea id="description" name="description" value={formData.description || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label htmlFor="price" className="block text-sm font-medium">Preis (€)</label>
-                    <input type="number" id="price" name="price" value={formData.price} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="number" id="price" name="price" value={formData.price || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
@@ -165,14 +127,14 @@ const ProductForm = ({ product, onCancel }) => {
 
                 <div>
                     <label htmlFor="category" className="block text-sm font-medium">Kategorie</label>
-                    <input type="text" id="category" name="category" value={formData.category} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="category" name="category" value={formData.category || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium mb-1">Größen & Lagerbestand</label>
                     <div className="flex gap-2 mb-2">
-                        <input type="text" placeholder="Größe" value={newSize} onChange={(e) => setNewSize(e.target.value)} className="p-2 border rounded w-1/2" />
-                        <input type="number" placeholder="Lagerbestand" value={newStock} onChange={(e) => setNewStock(e.target.value)} className="p-2 border rounded w-1/2" />
+                        <input type="text" placeholder="Größe" value={newSize || ""} onChange={(e) => setNewSize(e.target.value)} className="p-2 border rounded w-1/2" />
+                        <input type="number" placeholder="Lagerbestand" value={newStock || ""} onChange={(e) => setNewStock(e.target.value)} className="p-2 border rounded w-1/2" />
                         <button type="button" onClick={handleAddSize} className="bg-green-500 text-white px-4 py-2 rounded">Hinzufügen</button>
                     </div>
 
@@ -191,29 +153,29 @@ const ProductForm = ({ product, onCancel }) => {
                 <div>
                     <label htmlFor="discount" className="block text-sm font-medium">Rabatt</label>
                     <div className="flex space-x-4">
-                        <input type="number" id="discountAmount" name="discountAmount" value={formData.discount.amount} onChange={handleChange} className="w-1/2 p-2 border rounded-md" placeholder="Rabattbetrag" />
-                        <input type="date" id="expiresAt" name="expiresAt" value={formData.discount.expiresAt} onChange={handleChange} className="w-1/2 p-2 border rounded-md" placeholder="Ablaufdatum" />
+                        <input type="number" id="discountAmount" name="discountAmount" value={formData.discount.amount || ""} onChange={handleChange} className="w-1/2 p-2 border rounded-md" placeholder="Rabattbetrag" />
+                        <input type="date" id="expiresAt" name="expiresAt" value={formData.discount.expiresAt || ""} onChange={handleChange} className="w-1/2 p-2 border rounded-md" placeholder="Ablaufdatum" />
                     </div>
                 </div>
 
                 <div>
                     <label htmlFor="tags" className="block text-sm font-medium">Tags (durch Kommas trennen)</label>
-                    <input type="text" id="tags" name="tags" value={formData.tags} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="tags" name="tags" value={formData.tags || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label htmlFor="material" className="block text-sm font-medium">Material</label>
-                    <input type="text" id="material" name="material" value={formData.material} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="material" name="material" value={formData.material || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label htmlFor="gender" className="block text-sm font-medium">Geschlecht</label>
-                    <input type="text" id="gender" name="gender" value={formData.gender} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="gender" name="gender" value={formData.gender || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div>
                     <label htmlFor="ageGroup" className="block text-sm font-medium">Zielgruppe</label>
-                    <input type="text" id="ageGroup" name="ageGroup" value={formData.ageGroup} onChange={handleChange} className="w-full p-2 border rounded-md" />
+                    <input type="text" id="ageGroup" name="ageGroup" value={formData.ageGroup || ""} onChange={handleChange} className="w-full p-2 border rounded-md" />
                 </div>
 
                 <div className="flex space-x-4 mt-4">
