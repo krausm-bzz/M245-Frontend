@@ -1,12 +1,20 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { CartContext } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; // Importiere AuthContext
-import logo from '../assets/logo.png';
+import React from 'react';
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo.png";
+const API_BASE = 'http://localhost:5000/';
 
 export default function Header() {
     const { cartItems } = useContext(CartContext);
-    const { isAuthenticated, user, logout } = useAuth(); // Zugriff auf AuthContext
+    const { isAuthenticated, isAdmin, logout, loading } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
 
     return (
         <header className="bg-white shadow-md sticky top-0 z-50">
@@ -22,6 +30,10 @@ export default function Header() {
                             {cartItems.length}
                         </span>
                     </Link>
+
+                    {!loading && isAuthenticated && isAdmin && (
+                        <Link to="/admin" className="text-gray-700 hover:text-purple-600">Admin</Link>
+                    )}
 
                     {/* Anzeigen der Login/Registrieren-Links, wenn der Benutzer nicht eingeloggt ist */}
                     {!isAuthenticated ? (
