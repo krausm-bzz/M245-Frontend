@@ -7,10 +7,10 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Company Info */}
                 <div>
-                    <h4 className="text-lg font-semibold mb-2">Kostümshop GmbH</h4>
+                    <h4 className="text-lg font-semibold mb-2">Outrageous Outfits AG</h4>
                     <p>Mustergasse 12<br />8000 Zürich<br />Schweiz</p>
                     <p className="mt-2">Tel: +41 44 123 45 67</p>
-                    <p>Email: info@kostuemshop.ch</p>
+                    <p>Email: info@outrageousoutfits.ch</p>
                 </div>
 
                 {/* Legal Links */}
@@ -33,7 +33,7 @@ const Footer = () => {
             </div>
 
             <div className="border-t border-gray-700 mt-6 py-4 text-center text-xs">
-                © {new Date().getFullYear()} Kostümshop GmbH. Alle Rechte vorbehalten.
+                © {new Date().getFullYear()} Outrageous Outfits. Alle Rechte vorbehalten.
             </div>
         </footer>
     );

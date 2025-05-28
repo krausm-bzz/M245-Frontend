@@ -19,16 +19,17 @@ export default function Header() {
     return (
         <header className="bg-white shadow-md sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-                <Link to="/">
-                    <img src={logo} alt="Kostuemshop Logo" className="h-10" />
+                <Link to="/" className="flex items-center gap-3">
+                    <img src={logo} alt="Kostuemshop Logo" className="h-14" />
+                    <span className="text-xl font-bold text-gray-800">Outrageous Outfits</span>
                 </Link>
                 <nav className="flex gap-4 items-center">
                     <Link to="/" className="text-gray-700 hover:text-blue-500">Home</Link>
                     <Link to="/cart" className="relative">
                         🛒
                         <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-                            {cartItems.length}
-                        </span>
+                        {cartItems.length}
+                    </span>
                     </Link>
 
                     {!loading && isAuthenticated && isAdmin && (
