@@ -6,7 +6,9 @@ export default function Cart({ item, onRemove }) {
     // Wenn item.productId ein Objekt ist (vom Server z.B.), verwende das, sonst item selbst
     const product = typeof item.productId === 'object' ? item.productId : item;
 
-    const image = product?.images?.[0] || '/placeholder.png';
+    const image = product?.images?.[0]
+        ? 'http://localhost:5000/' + product.images[0].replace(/\\/g, '/')
+        : '/placeholder.png';
     const name = product?.name || 'Unbekanntes Produkt';
     const price = product?.price || 0;
     const quantity = item.quantity || 1;
