@@ -9,7 +9,7 @@ const getLabel = (key) => {
         firstName: 'Vorname',
         lastName: 'Nachname',
         email: 'E-Mail',
-        street: 'Straße',
+        street: 'Strasse',
         city: 'Stadt',
         state: 'Bundesland',
         zip: 'Postleitzahl',
@@ -20,7 +20,7 @@ const getLabel = (key) => {
 };
 
 function Profile() {
-    const { user, token, logout, isAuthenticated } = useAuth();
+    const { user, token, logout, isAuthenticated, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [formData, setFormData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -28,13 +28,13 @@ function Profile() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!authLoading && !isAuthenticated) {
             navigate('/login');
         }
-    }, [isAuthenticated, navigate]);
+    }, [authLoading, isAuthenticated, navigate]);
 
     useEffect(() => {
-        if (isAuthenticated && user) {
+        if (!authLoading && isAuthenticated && user) {
             const fetchData = async () => {
                 try {
                     const data = await getUser(token);
@@ -56,10 +56,9 @@ function Profile() {
                     setLoading(false);
                 }
             };
-
             fetchData();
         }
-    }, [isAuthenticated, user, token]);
+    }, [authLoading, isAuthenticated, user, token]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -85,8 +84,8 @@ function Profile() {
         if (!confirmDelete) return;
 
         try {
-            await deleteUser( token);
-            logout(); // Benutzer ausloggen
+            await deleteUser(token);
+            logout();
             alert('Konto wurde gelöscht.');
             navigate('/');
         } catch (err) {
@@ -94,7 +93,7 @@ function Profile() {
         }
     };
 
-    if (loading || !formData) {
+    if (authLoading || loading || !formData) {
         return <div>Lädt...</div>;
     }
 
@@ -108,9 +107,7 @@ function Profile() {
                     <ul className="space-y-2">
                         {Object.entries(formData).map(([key, value]) => (
                             <li key={key} className="flex justify-between border-b pb-1">
-                    <span className="font-medium">
-                        {getLabel(key)}:
-                    </span>
+                                <span className="font-medium">{getLabel(key)}:</span>
                                 <span>{value}</span>
                             </li>
                         ))}

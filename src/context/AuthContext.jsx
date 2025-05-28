@@ -6,7 +6,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [loading, setLoading] = useState(true); // wichtig für Initial-Ladezustand
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('user', JSON.stringify(userData));
             } catch (err) {
                 console.error("Fehler beim Abrufen des Benutzers:", err);
-                logout(); // bei Fehler alles löschen
+                logout(); // Token ungültig – alles zurücksetzen
             } finally {
                 setLoading(false);
             }
@@ -33,6 +33,17 @@ export const AuthProvider = ({ children }) => {
     const login = async (newToken) => {
         localStorage.setItem('token', newToken);
         setToken(newToken);
+
+        try {
+            const userData = await getCurrentUser(newToken);
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            return true; // Erfolg
+        } catch (err) {
+            console.error("Fehler beim Login:", err);
+            logout();
+            return false;
+        }
     };
 
     const logout = () => {
