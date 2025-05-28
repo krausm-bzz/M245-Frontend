@@ -157,3 +157,53 @@ export const deleteOrder = async (orderId, token) => {
         headers: getAuthHeaders(token)
     });
 };
+
+
+// --- CURRENT USER ---
+export const getCurrentUser = async (token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        headers: getAuthHeaders(token)
+    });
+
+    if (!res.ok) throw new Error("Nicht authentifiziert");
+
+    return res.json();
+};
+
+
+export const updateCurrentUser = async (data, token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        method: 'PUT',
+        headers: getAuthHeaders(token),
+        body: JSON.stringify(data)
+    });
+
+    return res.json();
+};
+
+export const deleteCurrentUser = async (token) => {
+    const res = await fetch(`${API_BASE}/users/me`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(token)
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to delete current user');
+    }
+
+    return res.json();
+};
+
+// Fetch image as blob and return an Object URL usable in img src
+export const fetchProductImage = async (filename) => {
+    const shortName = filename.split('\\').pop();
+    const res = await fetch(`${API_BASE}/products/image/${shortName}`);
+
+    if (!res.ok) {
+        throw new Error('Image not found');
+    }
+
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+};
+
