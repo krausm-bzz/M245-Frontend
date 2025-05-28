@@ -53,21 +53,18 @@ const Admin = () => {
         }
     };
 
-    const handleSave = async (data) => {
+    const handleSave = async (data, productToUpdate) => {
         try {
-            // Überprüfen, ob das Produkt bearbeitet oder neu erstellt wird
-            if (editingProduct) {
-                // Wenn ein Produkt bearbeitet wird
-                const updatedProduct = await updateProduct(editingProduct.id, data, token);
+            if (productToUpdate) {
+                const updatedProduct = await updateProduct(productToUpdate._id, data, token);
                 console.log('Produkt erfolgreich aktualisiert:', updatedProduct);
             } else {
-                // Wenn ein neues Produkt erstellt wird
                 const newProduct = await createProduct(data, token);
                 console.log('Neues Produkt erfolgreich erstellt:', newProduct);
             }
 
-            setShowForm(false); // Formular schließen
-            loadProducts(); // Liste der Produkte neu laden
+            setShowForm(false);
+            loadProducts();
         } catch (err) {
             console.error('Fehler beim Speichern des Produkts:', err);
         }
