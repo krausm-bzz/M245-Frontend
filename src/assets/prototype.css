@@ -37,7 +37,6 @@ p {
 
 /* Karten / Produktboxen */
 .card, .product {
-    border: 1px dashed #aaa;
     background: #fff;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -60,7 +59,6 @@ button:hover, .btn:hover {
 img {
     max-width: 100%;
     height: auto;
-    border: 1px solid #ccc;
 }
 
 /* Navigation */

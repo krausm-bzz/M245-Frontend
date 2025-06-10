@@ -23,10 +23,10 @@ export default function ProductCard({ product }) {
     const availableSizes = sizes?.filter(s => s.stock > 0).map(s => s.size).join(', ');
 
     return (
-        <div className="p-4 border rounded shadow hover:shadow-md transition">
+        <div className="card p-4 border rounded shadow hover:shadow-md transition">
             <Link to={`/product/${product._id}`}>
                 {imageUrl && (
-                    <div className="w-full h-64 flex items-center justify-center bg-gray-50 rounded mb-3 overflow-hidden">
+                    <div className="w-full h-64 flex items-center justify-center rounded mb-3 overflow-hidden">
                         <img
                             src={imageUrl}
                             alt={name}
