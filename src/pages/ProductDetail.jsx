@@ -1,4 +1,5 @@
 import React from 'react';
+
 function ProductDetail({ product, addToCart }) {
     // Extract the first image (if available) to display as the main image
     const mainImage =
@@ -6,9 +7,16 @@ function ProductDetail({ product, addToCart }) {
             ? 'http://localhost:5000' + product.images[0].replace(/\\/g, '/')
             : null;
 
-    console.log(mainImage)
+    console.log(mainImage);
+
+    // Check if there's a valid discount (amount > 0 and not expired)
+    const hasValidDiscount = product.discount &&
+        product.discount.amount > 0 &&
+        product.discount.expiresAt &&
+        new Date(product.discount.expiresAt) > new Date();
+
     // Calculate the price after discount (if applicable)
-    const priceWithDiscount = product.discount
+    const priceWithDiscount = hasValidDiscount
         ? product.price - product.discount.amount
         : product.price;
 
@@ -26,9 +34,9 @@ function ProductDetail({ product, addToCart }) {
                     <h1 className="text-3xl font-bold">{product.name}</h1>
                     <p className="mt-2 text-lg text-gray-700">{product.description}</p>
                     <p className="mt-4 text-xl font-semibold">
-                        {product.discount
-                            ? <span className="line-through text-gray-500">{product.price} €</span>
-                            : null}
+                        {hasValidDiscount && (
+                            <span className="line-through text-gray-500 mr-2">{product.price} €</span>
+                        )}
                         {priceWithDiscount} €
                     </p>
 
@@ -47,12 +55,14 @@ function ProductDetail({ product, addToCart }) {
                         </div>
                     )}
 
-                    {/* Display discount if available */}
-                    {product.discount && (
+                    {/* Display discount if available and valid */}
+                    {hasValidDiscount && (
                         <div className="mt-4">
                             <h3 className="text-lg font-semibold text-green-600">Discount</h3>
                             <p className="text-sm">Save {product.discount.amount} €</p>
-                            <p className="text-sm text-gray-500">Expires on {new Date(product.discount.expiresAt).toLocaleDateString()}</p>
+                            <p className="text-sm text-gray-500">
+                                Expires on {new Date(product.discount.expiresAt).toLocaleDateString()}
+                            </p>
                         </div>
                     )}
 
