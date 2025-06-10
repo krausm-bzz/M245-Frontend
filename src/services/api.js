@@ -122,20 +122,35 @@ export const createProduct = async (data, token) => {
 
 
 
-export const updateProduct = async (productId, data, token) => {
-    const res = await fetch(`${API_BASE}/products/${productId}`, {
+export const updateProduct = async (id, data, token) => {
+    const formData = new FormData();
+
+    // Append non-file fields
+    for (const key in data) {
+        if (key !== 'images') {
+            const value = data[key];
+            formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+        }
+    }
+
+    // Append files
+    if (data.images && data.images.length > 0) {
+        data.images.forEach((file) => {
+            formData.append('images', file);
+        });
+    }
+
+    const res = await fetch(`${API_BASE}/products/${id}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`, // ✅ No Content-Type header for FormData
         },
-        body: JSON.stringify(data)
+        body: formData, // ✅ Send FormData instead of JSON
     });
 
     if (!res.ok) {
         throw new Error('Produkt konnte nicht aktualisiert werden');
     }
-
     return res.json();
 };
 
