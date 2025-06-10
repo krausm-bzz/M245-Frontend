@@ -7,7 +7,7 @@ export default function Cart({ item, onRemove }) {
     const product = typeof item.productId === 'object' ? item.productId : item;
 
     const image = product?.images?.[0]
-        ? 'http://localhost:5000/' + product.images[0].replace(/\\/g, '/')
+        ? 'http://localhost:5000' + product.images[0].replace(/\\/g, '/')
         : '/placeholder.png';
     const name = product?.name || 'Unbekanntes Produkt';
     const price = product?.price || 0;
@@ -18,11 +18,13 @@ export default function Cart({ item, onRemove }) {
     return (
         <div className="flex items-center justify-between border p-4 rounded shadow-sm bg-white">
             <div className="flex items-center gap-4">
-                <img
-                    src={image}
-                    alt={name}
-                    className="w-20 h-20 object-cover rounded"
-                />
+                <div className="w-20 h-20 flex items-center justify-center bg-gray-50 rounded overflow-hidden flex-shrink-0">
+                    <img
+                        src={image}
+                        alt={name}
+                        className="max-w-full max-h-full object-contain"
+                    />
+                </div>
                 <div>
                     <h3 className="font-semibold text-lg">{name}</h3>
                     <p className="text-gray-600">
