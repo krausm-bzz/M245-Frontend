@@ -17,8 +17,10 @@ function ProductDetail({ product, addToCart }) {
 
     // Calculate the price after discount (if applicable)
     const priceWithDiscount = hasValidDiscount
-        ? product.price - product.discount.amount
+        ? (product.price - product.discount.amount).toFixed(2)
         : product.price;
+
+
 
     return (
         <div className="max-w-4xl mx-auto p-4">
