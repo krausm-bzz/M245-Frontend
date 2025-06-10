@@ -69,7 +69,25 @@ function Profile() {
         setLoading(true);
         setError(null);
         try {
-            await updateUser(formData, token);
+            const payload = {
+                ...formData,
+                address: {
+                    street: formData.street,
+                    city: formData.city,
+                    state: formData.state,
+                    zip: formData.zip,
+                    country: formData.country
+                }
+            };
+
+            // Remove flat address fields
+            delete payload.street;
+            delete payload.city;
+            delete payload.state;
+            delete payload.zip;
+            delete payload.country;
+
+            await updateUser(payload, token);
             alert('Daten wurden erfolgreich aktualisiert!');
             setIsEditing(false);
         } catch (err) {
@@ -78,6 +96,7 @@ function Profile() {
             setLoading(false);
         }
     };
+
 
     const handleDelete = async () => {
         const confirmDelete = window.confirm('Möchtest du dein Konto wirklich löschen? Dies kann nicht rückgängig gemacht werden.');
