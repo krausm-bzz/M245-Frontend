@@ -3,7 +3,7 @@ function ProductDetail({ product, addToCart }) {
     // Extract the first image (if available) to display as the main image
     const mainImage =
         product.images && product.images.length > 0
-            ? 'http://localhost:5000/' + product.images[0].replace(/\\/g, '/')
+            ? 'http://localhost:5000' + product.images[0].replace(/\\/g, '/')
             : null;
 
     console.log(mainImage)

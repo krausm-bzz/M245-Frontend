@@ -87,14 +87,29 @@ export const getProduct = async (productId) => {
 };
 
 export const createProduct = async (data, token) => {
-    console.log("DATA = ", data)
+    const formData = new FormData();
+
+    // Append non-file fields
+    for (const key in data) {
+        if (key !== 'images') {
+            const value = data[key];
+            formData.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
+        }
+    }
+    console.log(data.images)
+    // Append files
+    if (data.images && data.images.length > 0) {
+        data.images.forEach((file) => {
+            formData.append('images', file); // 'images' should match your backend field
+        });
+    }
+
     const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json', // ✅ required!
-            Authorization: `Bearer ${token}`, // kein Content-Type bei FormData
+            Authorization: `Bearer ${token}`, // ✅ DO NOT manually set Content-Type
         },
-        body: JSON.stringify(data),
+        body: formData,
     });
 
     if (!res.ok) {
@@ -220,7 +235,7 @@ export const deleteCurrentUser = async (token) => {
 // Fetch image as blob and return an Object URL usable in img src
 export const fetchProductImage = async (filename) => {
     const shortName = filename.split('\\').pop();
-    const res = await fetch(`${API_BASE}/products/image/${shortName}`);
+    const res = await fetch(`http://localhost:5000${shortName}`);
 
     if (!res.ok) {
         throw new Error('Image not found');
