@@ -60,7 +60,6 @@ const ProductForm = ({ product, onCancel, onSave }) => {
         if (hasSubmitted.current) return;
         hasSubmitted.current = true;
 
-        // prepare plain JS object (not FormData)
         const data = {
             name: formData.name,
             description: formData.description,
@@ -75,8 +74,7 @@ const ProductForm = ({ product, onCancel, onSave }) => {
             },
             sizes: formData.sizes,
             tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-            // Note: images are omitted here because sending files in JSON isn't possible,
-            // you need a separate endpoint or multipart/form-data for that.
+            images: formData.images, // ✅ ADD THIS LINE
         };
 
         onSave(data, product);
