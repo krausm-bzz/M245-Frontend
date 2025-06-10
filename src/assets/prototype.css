@@ -63,21 +63,25 @@ img {
 
 /* Navigation */
 nav {
-    background: #eee;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px dashed #bbb;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    z-index: 1000;
 }
 
 nav a {
-    margin-right: 1rem;
     text-decoration: none;
-    color: #333;
+    color: #444;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 nav a:hover {
-    text-decoration: underline;
+    color: #007acc;
 }
+
 
 /* Tabellen & Admin UI */
 table {
