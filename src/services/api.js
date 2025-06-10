@@ -87,12 +87,14 @@ export const getProduct = async (productId) => {
 };
 
 export const createProduct = async (data, token) => {
+    console.log("DATA = ", data)
     const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json', // ✅ required!
             Authorization: `Bearer ${token}`, // kein Content-Type bei FormData
         },
-        body: data,  // data ist schon FormData vom Frontend
+        body: JSON.stringify(data),
     });
 
     if (!res.ok) {
